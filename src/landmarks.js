@@ -450,21 +450,24 @@ export function buildLandmarks({ data, heightAt, wx, wy, M, LIFT, scene, wallTin
     // Norsk Luftfartsmuseum (1994): seen from the air a giant two-bladed propeller, grey and
     // smoked glass, with the dark blue glazed entrance hall as its hub. Spec: blade, hub (m).
     propeller(site) {
-      const all = siteRings(site), pts = ccw(outerRings(site, all)[0]), base = baseOf(pts), Hb = site.blade || 11, Hh = site.hub || 17;
+      // the blades: one or more outer rings (the road through the middle is kept clear, see the spec)
+      const all = siteRings(site), blades = outerRings(site, all).map(ccw), every = blades.flat(), base = baseOf(every), Hb = site.blade || 11, Hh = site.hub || 17;
       const [hx, hz] = site.hubAt ? [wx(site.hubAt[0] * 1e5), wy(site.hubAt[1] * 1e5)] : [wx(site.frame.center[0]), wy(site.frame.center[1])];
       // the blades' roofs fall from the hub towards the tips, so the two blades read from any side
-      const fr = axes(pts), sh = hx * fr.dx + hz * fr.dz, reach = Math.max(fr.s1 - sh, sh - fr.s0);
+      const fr = axes(every), sh = hx * fr.dx + hz * fr.dz, reach = Math.max(fr.s1 - sh, sh - fr.s0);
       const top = ([x, z]) => base + Hb * (1 - .45 * Math.min(1, Math.abs(x * fr.dx + z * fr.dz - sh) / reach)) * K;
-      const b = bucket('aluminium'), [bay, storey] = TILE.aluminium, wall = linear('#b9bec2');
-      let run = 0;
-      for (let i = 0; i < pts.length; i++) {
-        const a = pts[i], c = pts[(i + 1) % pts.length], len = Math.hypot(c[0] - a[0], c[1] - a[1]), ya = top(a), yc = top(c);
-        const u0 = run / (bay * M), u1 = (run + len) / (bay * M);
-        quad(b, [[a[0], base - 1.5, a[1]], [c[0], base - 1.5, c[1]], [c[0], yc, c[1]], [a[0], ya, a[1]]], wall, [[u0, 0], [u1, 0], [u1, (yc - base) / (storey * K)], [u0, (ya - base) / (storey * K)]]);
-        run += len;
+      const b = bucket('aluminium'), [bay, storey] = TILE.aluminium, wall = linear('#b9bec2'), roofC = linear('#9ba2a7');
+      for (const pts of blades) {
+        let run = 0;
+        for (let i = 0; i < pts.length; i++) {
+          const a = pts[i], c = pts[(i + 1) % pts.length], len = Math.hypot(c[0] - a[0], c[1] - a[1]), ya = top(a), yc = top(c);
+          const u0 = run / (bay * M), u1 = (run + len) / (bay * M);
+          quad(b, [[a[0], base - 1.5, a[1]], [c[0], base - 1.5, c[1]], [c[0], yc, c[1]], [a[0], ya, a[1]]], wall, [[u0, 0], [u1, 0], [u1, (yc - base) / (storey * K)], [u0, (ya - base) / (storey * K)]]);
+          run += len;
+        }
+        const t = Earcut.triangulate(pts.flat());
+        for (let i = 0; i < t.length; i += 3) tri(plain, [pts[t[i]], pts[t[i + 2]], pts[t[i + 1]]].map(p => [p[0], top(p), p[1]]), roofC);
       }
-      const flat = pts.flat(), t = Earcut.triangulate(flat), roofC = linear('#9ba2a7');
-      for (let i = 0; i < t.length; i += 3) tri(plain, [pts[t[i]], pts[t[i + 2]], pts[t[i + 1]]].map(p => [p[0], top(p), p[1]]), roofC);
       const [cx, cz] = site.hubAt ? [wx(site.hubAt[0] * 1e5), wy(site.hubAt[1] * 1e5)] : [wx(site.frame.center[0]), wy(site.frame.center[1])], r = (site.hubR || 15) * M;
       const y0 = base + Hb * K;
       prism('dark', [ccw(Array.from({ length: 20 }, (_, i) => [cx + Math.cos(i / 20 * Math.PI * 2) * r, cz + Math.sin(i / 20 * Math.PI * 2) * r]))], base, 0, Hh, '#2f4a6e', '#9aa1a6');

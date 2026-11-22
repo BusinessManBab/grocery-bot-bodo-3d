@@ -155,7 +155,11 @@ for (const s of spec.sites) {
   const site = { ...s };
   delete site.osm; delete site.building; delete site.place;
   site.build = 'model';
-  if (s.osm) {
+  if (s.rings) {
+    // an outline given in the spec (an OSM outline adjusted by hand, e.g. kept clear of a road)
+    site.outline = s.rings;
+    delete site.rings;
+  } else if (s.osm) {
     const found = cache[s.osm];
     if (!found) throw new Error(`${s.id}: ${s.osm} not found on OSM`);
     site.outline = found.rings;

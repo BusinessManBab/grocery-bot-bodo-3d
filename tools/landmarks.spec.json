@@ -1,21 +1,191 @@
 {
-  "town": "Bodø",
-  "notes": "Bodø's trademarks inside the map: Bodø domkirke (Blakstad & Munthe-Kaas, 1956, a five-aisled basilica in rendered concrete with a free-standing open bell tower of 12 inclined concrete pillars under a copper spire with 20 gilded balls; SNL), Stormen (DRDH, 2014, the concert hall and library on the harbour in stacked white precast concrete panels under pitched roofs, the library glazed to the harbour, a 22 m flytower; Dezeen, Stormen tech spec) and Norsk Luftfartsmuseum (BOARCH, 1994, shaped like a giant propeller seen from the air, grey and smoked glass with a dark blue glazed hub; UiT arkitekturguide). Outlines and part heights from OSM.",
-  "sites": [
-    { "id": "domkirke", "name": "Bodø domkirke", "model": "group", "osm": "w152828679", "at": [14.38202, 67.28244] },
-    { "id": "domkirke-nave", "name": "Bodø domkirke (nave)", "model": "part", "group": "domkirke", "osm": "w918203632", "place": false, "height": 17, "roofShape": "gabled", "pitch": 0.8 },
-    { "id": "domkirke-aisle-a", "name": "Bodø domkirke (aisle)", "model": "part", "group": "domkirke", "osm": "w918203623", "place": false, "height": 11, "roofShape": "gabled", "pitch": 0.45 },
-    { "id": "domkirke-aisle-b", "name": "Bodø domkirke (outer aisle)", "model": "part", "group": "domkirke", "osm": "w918203624", "place": false, "height": 9, "roofShape": "gabled", "pitch": 0.35 },
-    { "id": "domkirke-choir", "name": "Bodø domkirke (choir)", "model": "part", "group": "domkirke", "osm": "w918203629", "place": false, "height": 9, "roofShape": "hipped", "pitch": 0.5 },
-    { "id": "domkirke-wing", "name": "Bodø domkirke (wing)", "model": "part", "group": "domkirke", "osm": "w918203628", "place": false, "height": 5, "roofShape": "hipped", "pitch": 0.4 },
-    { "id": "domkirke-porch-a", "name": "Bodø domkirke (porch)", "model": "part", "group": "domkirke", "osm": "w918203625", "place": false, "height": 4, "roofShape": "gabled", "pitch": 0.4 },
-    { "id": "domkirke-porch-b", "name": "Bodø domkirke (porch)", "model": "part", "group": "domkirke", "osm": "w918203627", "place": false, "height": 4 },
-    { "id": "domkirketarn", "name": "Bodø domkirke bell tower", "model": "campanile", "group": "domkirke", "osm": "w152828682", "place": false, "cage": 20, "spire": 34 },
-    { "id": "stormen-konserthus", "name": "Stormen konserthus", "model": "stormen", "osm": "w543361764", "at": [14.37503, 67.28314], "height": 16, "rise": 5, "tower": [26, 0.36] },
-    { "id": "stormen-bibliotek", "name": "Stormen bibliotek", "model": "stormen", "osm": "w543361761", "at": [14.37372, 67.28267], "height": 10, "rise": 4, "glass": 285 },
-    { "id": "luftfartsmuseum", "name": "Norsk Luftfartsmuseum", "model": "propeller", "osm": "w153340863", "at": [14.4135, 67.27625], "blade": 11, "hub": 17, "hubAt": [14.41372, 67.27606], "hubR": 15 }
-  ],
-  "places": [
-    { "name": "Bodø rådhus", "lon": 14.38287, "lat": 67.28325 }
-  ]
+ "town": "Bodø",
+ "notes": "Bodø's trademarks inside the map: Bodø domkirke (Blakstad & Munthe-Kaas, 1956, a five-aisled basilica in rendered concrete with a free-standing open bell tower of 12 inclined concrete pillars under a copper spire with 20 gilded balls; SNL), Stormen (DRDH, 2014, the concert hall and library on the harbour in stacked white precast concrete panels under pitched roofs, the library glazed to the harbour, a 22 m flytower; Dezeen, Stormen tech spec) and Norsk Luftfartsmuseum (BOARCH, 1994, shaped like a giant propeller seen from the air, grey and smoked glass with a dark blue glazed hub; UiT arkitekturguide). Outlines and part heights from OSM.",
+ "sites": [
+  {
+   "id": "domkirke",
+   "name": "Bodø domkirke",
+   "model": "group",
+   "osm": "w152828679",
+   "at": [
+    14.38202,
+    67.28244
+   ]
+  },
+  {
+   "id": "domkirke-nave",
+   "name": "Bodø domkirke (nave)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203632",
+   "place": false,
+   "height": 17,
+   "roofShape": "gabled",
+   "pitch": 0.8
+  },
+  {
+   "id": "domkirke-aisle-a",
+   "name": "Bodø domkirke (aisle)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203623",
+   "place": false,
+   "height": 11,
+   "roofShape": "gabled",
+   "pitch": 0.45
+  },
+  {
+   "id": "domkirke-aisle-b",
+   "name": "Bodø domkirke (outer aisle)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203624",
+   "place": false,
+   "height": 9,
+   "roofShape": "gabled",
+   "pitch": 0.35
+  },
+  {
+   "id": "domkirke-choir",
+   "name": "Bodø domkirke (choir)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203629",
+   "place": false,
+   "height": 9,
+   "roofShape": "hipped",
+   "pitch": 0.5
+  },
+  {
+   "id": "domkirke-wing",
+   "name": "Bodø domkirke (wing)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203628",
+   "place": false,
+   "height": 5,
+   "roofShape": "hipped",
+   "pitch": 0.4
+  },
+  {
+   "id": "domkirke-porch-a",
+   "name": "Bodø domkirke (porch)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203625",
+   "place": false,
+   "height": 4,
+   "roofShape": "gabled",
+   "pitch": 0.4
+  },
+  {
+   "id": "domkirke-porch-b",
+   "name": "Bodø domkirke (porch)",
+   "model": "part",
+   "group": "domkirke",
+   "osm": "w918203627",
+   "place": false,
+   "height": 4
+  },
+  {
+   "id": "domkirketarn",
+   "name": "Bodø domkirke bell tower",
+   "model": "campanile",
+   "group": "domkirke",
+   "osm": "w152828682",
+   "place": false,
+   "cage": 20,
+   "spire": 34
+  },
+  {
+   "id": "stormen-konserthus",
+   "name": "Stormen konserthus",
+   "model": "stormen",
+   "osm": "w543361764",
+   "at": [
+    14.37503,
+    67.28314
+   ],
+   "height": 16,
+   "rise": 5,
+   "tower": [
+    26,
+    0.36
+   ]
+  },
+  {
+   "id": "stormen-bibliotek",
+   "name": "Stormen bibliotek",
+   "model": "stormen",
+   "osm": "w543361761",
+   "at": [
+    14.37372,
+    67.28267
+   ],
+   "height": 10,
+   "rise": 4,
+   "glass": 285
+  },
+  {
+   "id": "luftfartsmuseum",
+   "name": "Norsk Luftfartsmuseum",
+   "model": "propeller",
+   "osm": "w153340863",
+   "at": [
+    14.4135,
+    67.27625
+   ],
+   "blade": 11,
+   "hub": 17,
+   "hubAt": [
+    14.41358,
+    67.27626
+   ],
+   "hubR": 15,
+   "rings": [
+    [
+     1441326,
+     6727612,
+     1441320,
+     6727624,
+     1441307,
+     6727625,
+     1441257,
+     6727708,
+     1441355,
+     6727704,
+     1441409,
+     6727622,
+     1441404,
+     6727622,
+     1441412,
+     6727610,
+     1441326,
+     6727612
+    ],
+    [
+     1441484,
+     6727504,
+     1441385,
+     6727509,
+     1441335,
+     6727587,
+     1441412,
+     6727585,
+     1441440,
+     6727581,
+     1441484,
+     6727504
+    ]
+   ],
+   "note": "OSM w153340863 with Olav V gate kept clear: the game's main road runs through the middle of the mapped outline, so the outline is clipped 14 m either side of it and the hub drum stands on the north blade."
+  }
+ ],
+ "places": [
+  {
+   "name": "Bodø rådhus",
+   "lon": 14.38287,
+   "lat": 67.28325
+  }
+ ]
 }
