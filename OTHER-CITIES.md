@@ -717,6 +717,17 @@ the browser console, `groceryView.world3d.flowAt(x, z)` returns `[dx, dz, speed]
 `groceryView.toWorld(lon * 1e5, lat * 1e5)` turns a map coordinate into `x, z`. +z is south and
 +x is east.
 
+## Landmarks (the town's trademarks)
+
+Pick 2-4 trademark sites inside the map bounds (OSM features with `wikidata` tags are a good
+signal), verify their shape, colours and heights from reliable sources, and list them in
+`tools/landmarks.spec.json` with their OSM outline (`"osm": "w123"`). `node tools/bake_landmarks.mjs`
+caches the outlines and writes `data/landmarks.json` and `data/places.json` (the Explore menu); then
+re-run `tools/bake_buildings.mjs` so the plain footprints they replace are dropped. Generic models
+are `church`, `outline`, `rapids`, `part` (one OSM building part; parts with the same `group`
+share a base); signature shapes are their own functions in `MODELS` in `src/landmarks.js` (Bodø:
+`campanile`, `stormen`, `propeller`). Keep it to a handful of draw calls and avoid coplanar faces.
+
 ## Sources and credits
 
 - Roads, water, green areas, buildings: © OpenStreetMap contributors, ODbL. Keep the credit line

@@ -44,6 +44,32 @@ built for **Bodø** with the steps in [OTHER-CITIES.md](OTHER-CITIES.md):
 To make this for another town, follow [OTHER-CITIES.md](OTHER-CITIES.md) (data scripts in
 `tools/build_city.py`).
 
+## Landmarks
+
+Three of Bodø's trademarks are modelled by hand in `src/landmarks.js` on their real OSM outlines
+(`tools/landmarks.spec.json` -> `node tools/bake_landmarks.mjs` -> `data/landmarks.json`), and the
+3D **Explore** menu flies to each of them:
+
+- **Bodø domkirke** (1956): the five-aisled basilica from its OSM building parts (nave 17 m,
+  aisles 9-11 m, choir, porches) in rendered concrete, and the **free-standing bell tower**:
+  12 slightly inclined concrete pillars braced by horizontal frames, open between them, under a
+  copper spire with 20 gilded balls (34 m, from SNL and OSM).
+- **Stormen** (DRDH, 2014): the concert hall and the library on the harbour in stacked white
+  precast concrete panels under pitched roofs, the library glazed towards the harbour and the
+  concert hall's flytower rising from its middle.
+- **Norsk Luftfartsmuseum** (1994): the giant two-bladed propeller seen from the air, grey, with
+  the dark blue glazed entrance hall as its hub; the blades' roofs fall towards the tips.
+
+All of it is ~6 draw calls and a few thousand triangles, merged into the shared material buckets.
+
+## Loading
+
+The Oslo map's fast-load strategy: buildings are baked into a compact chunked `data/buildings.bin`
+(+ `data/homes.json`, `data/trees.bin`), and module workers build the chunk meshes nearest-first,
+so the 3D map is on screen in ~2.5 s (GTX 1070, all 8,688 buildings) at 60 fps. Shared walls are
+kept on one side only, doors stand off the walls and the near plane follows the camera, so windows
+no longer flicker. Rebuild order: `bake_landmarks.mjs`, `bake_buildings.mjs`, `bake_trees.cjs`.
+
 Switch views with the 2D / 3D buttons (or V, or `?view=3d`).
 
 Elevation: Mapzen Terrarium tiles (AWS Open Data). Map data © OpenStreetMap contributors (ODbL).
