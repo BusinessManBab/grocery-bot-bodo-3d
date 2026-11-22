@@ -9,6 +9,7 @@
 // That is 20 bytes per building vertex instead of 44, and indexed faces need 4 vertices per
 // wall instead of 6.
 import { Bucket, STYLES, createBuilder } from './building-geometry.js?v=30';
+import { museumUnderpass } from './museum-underpass.js?v=31';
 
 export const M = 1 / 1.113;              // world units per metre (one unit is 1e-5 degree of latitude)
 export const LIFT = 1.3;                 // buildings a little taller than life so the town reads from above
@@ -26,13 +27,18 @@ export function createFrame({ bounds, cols, rows, heights }) {
   const origin = [(b0 + b2) / 2, (b1 + b3) / 2], squash = Math.cos(origin[1] / 1e5 * Math.PI / 180);
   const wx = lon => (lon - origin[0]) * squash, wy = lat => -(lat - origin[1]);
   const X0 = wx(b0), X1 = wx(b2), Z0 = wy(b3), Z1 = wy(b1), W = X1 - X0, D = Z1 - Z0;
-  const gridY = i => heights[i] / 10 * M * RELIEF;
-  function heightAt(x, z) {
+  const underpass = museumUnderpass(wx, wy);
+  const originalGridY = i => heights[i] / 10 * M * RELIEF;
+  const surface = Float32Array.from(heights, (_, i) => originalGridY(i) - underpass.depthAt(X0 + i % cols / (cols - 1) * W, Z0 + Math.floor(i / cols) / (rows - 1) * D));
+  const gridY = i => surface[i];
+  function sampleHeight(x, z, sample) {
     const fx = clamp((x - X0) / W, 0, 1) * (cols - 1), fz = clamp((z - Z0) / D, 0, 1) * (rows - 1);
     const c = Math.min(cols - 2, Math.floor(fx)), r = Math.min(rows - 2, Math.floor(fz)), u = fx - c, v = fz - r, i = r * cols + c;
-    return (gridY(i) * (1 - u) + gridY(i + 1) * u) * (1 - v) + (gridY(i + cols) * (1 - u) + gridY(i + cols + 1) * u) * v;
+    return (sample(i) * (1 - u) + sample(i + 1) * u) * (1 - v) + (sample(i + cols) * (1 - u) + sample(i + cols + 1) * u) * v;
   }
-  return { wx, wy, X0, X1, Z0, Z1, W, D, heightAt, gridY };
+  const heightAt = (x, z) => sampleHeight(x, z, gridY);
+  const groundHeightAt = (x, z) => sampleHeight(x, z, originalGridY);
+  return { wx, wy, X0, X1, Z0, Z1, W, D, heightAt, groundHeightAt, gridY };
 }
 
 /** data/buildings.bin (tools/bake_buildings.mjs) -> header and typed-array views, no parsing. */

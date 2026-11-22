@@ -16,6 +16,7 @@
 import * as THREE from 'three';
 import { Bucket, linear, quad, tri } from './building-geometry.js?v=30';
 import { Earcut } from './vendor/earcut.js';
+import { museumUnderpass } from './museum-underpass.js?v=31';
 
 // facade tile: [bay width m, storey height m]
 const TILE = { glass: [3, 3.6], tower: [1.8, 3.6], brick: [3.6, 4.2], classic: [4.6, 5.2], castle: [7, 6], slate: [9, 8],
@@ -97,7 +98,7 @@ const shade = (hex, k) => { const c = linear(hex); return [c[0] * k, c[1] * k, c
 const shadeHex = (hex, k) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * k).toString(16).padStart(2, '0')).join('');
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
-export function buildLandmarks({ data, heightAt, wx, wy, M, LIFT, scene, wallTint, cartoon }) {
+export function buildLandmarks({ data, heightAt, groundHeightAt = heightAt, wx, wy, M, LIFT, scene, wallTint, cartoon }) {
   const K = M * LIFT;                                     // world units per metre of height
   const buckets = new Map();                              // facade kind -> walls; 'plain' -> roofs and details
   const bucket = kind => { if (!buckets.has(kind)) buckets.set(kind, new Bucket(true)); return buckets.get(kind); };
@@ -450,8 +451,9 @@ export function buildLandmarks({ data, heightAt, wx, wy, M, LIFT, scene, wallTin
     // Norsk Luftfartsmuseum (1994): seen from the air a giant two-bladed propeller, grey and
     // smoked glass, with the dark blue glazed entrance hall as its hub. Spec: blade, hub (m).
     propeller(site) {
-      // the blades: one or more outer rings (the road through the middle is kept clear, see the spec)
-      const all = siteRings(site), blades = outerRings(site, all).map(ccw), every = blades.flat(), base = baseOf(every), Hb = site.blade || 11, Hh = site.hub || 17;
+      // Keep the ground-level road opening; reconnect the wings above its clear height.
+      const all = siteRings(site), blades = outerRings(site, all).map(ccw), every = blades.flat();
+      const base = Math.min(...every.map(([x, z]) => groundHeightAt(x, z))), Hb = site.blade || 11, Hh = site.hub || 17;
       const [hx, hz] = site.hubAt ? [wx(site.hubAt[0] * 1e5), wy(site.hubAt[1] * 1e5)] : [wx(site.frame.center[0]), wy(site.frame.center[1])];
       // the blades' roofs fall from the hub towards the tips, so the two blades read from any side
       const fr = axes(every), sh = hx * fr.dx + hz * fr.dz, reach = Math.max(fr.s1 - sh, sh - fr.s0);
@@ -474,6 +476,16 @@ export function buildLandmarks({ data, heightAt, wx, wy, M, LIFT, scene, wallTin
       cone(cx, cz, base + Hh * K, base + (Hh + 2.5) * K, r * .98, r * .35, '#9aa1a6', 20);
       // the spinner: a small cone at the hub's centre
       cone(cx, cz, base + (Hh + 2.5) * K, base + (Hh + 4) * K, r * .35, 0, '#c7ccd0', 12);
+      const passage = museumUnderpass(wx, wy), deckBase = groundHeightAt(passage.cx, passage.cz);
+      // A real enclosed gallery across the road, with a visible underside, not a
+      // ground-level prism that trucks would drive through. All supports sit off-road.
+      box('dark', passage.at, -13 * M, 13 * M, -27 * M, 27 * M,
+        deckBase, passage.soffitMetres, passage.roofMetres, '#657d91', '#9ba2a7');
+      for (const s of [-11, 11]) for (const t of [-23, 23])
+        box('panels', passage.at, (s - .7) * M, (s + .7) * M, (t - .8) * M, (t + .8) * M,
+          deckBase, -1, passage.soffitMetres, '#adb4b8', '#9ba2a7');
+      stats.museumUnderpass = { centre: [passage.cx, passage.cz], depthMetres: passage.depthMetres,
+        soffit: deckBase + passage.soffitMetres * K, spanMetres: 54 };
     },
     // Oslo Opera House (Snøhetta, 2008): white marble roof rising from the fjord to a plateau, the
     // glazed main hall above it, the stage towers (35 m and 25 m) and the aluminium-clad workshops.

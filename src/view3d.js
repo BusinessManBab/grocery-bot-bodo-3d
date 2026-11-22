@@ -18,9 +18,10 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { COLORS, HEADS, INK as TRUCK_INK, SHELL, EDGE, WOOD, LAMP, mix, light, face } from './looks.js';
 import { BASE, createBuildings } from './buildings3d.js?v=30';
 import { forestPath } from './forest.js?v=30';
-import { streamCity } from './city-stream.js?v=30';
-import { buildLandmarks, landmarkClearance, landmarkTop } from './landmarks.js?v=30';
-import { LIFT, M, RELIEF, UV_SCALE, createDecks, createFrame, readBuildings } from './world-build.js?v=30';
+import { streamCity } from './city-stream.js?v=31';
+import { buildLandmarks, landmarkClearance, landmarkTop } from './landmarks.js?v=31';
+import { LIFT, M, RELIEF, UV_SCALE, createDecks, createFrame, readBuildings } from './world-build.js?v=31';
+import { museumUnderpass } from './museum-underpass.js?v=31';
 
 const PALETTE = {
   ground: '#f0e9d8', side: '#e2d6bb', base: '#cfc1a2', green: '#c9d8ac', water: '#86b8c5',
@@ -99,7 +100,8 @@ export async function createWorld3d(opts) {
   // ---- terrain: elevation grid over exactly these bounds (row 0 north, column 0 west) ----
   const { cols, rows } = relief;
   const terrain = { bounds: town.bounds, cols, rows, heights };
-  const { heightAt, gridY } = createFrame(terrain);
+  const { heightAt, groundHeightAt, gridY } = createFrame(terrain);
+  const museumPassage = museumUnderpass(wx, wy);
   const PEAK = (relief.top - relief.base) * M * RELIEF;
 
   const flat = (colour, order, extraOpts = {}) => new THREE.MeshBasicMaterial({ color: colour, depthWrite: false, side: THREE.DoubleSide, ...extraOpts });
@@ -321,7 +323,7 @@ export async function createWorld3d(opts) {
   // The town's famous buildings and places (src/landmarks.js, data/landmarks.json), e.g. the Opera House, MUNCH, the City Hall, the Royal
   // Palace and more, from their real OSM parts or modelled on their measured footprints. The plain
   // footprints they replace are already left out of data/buildings.bin by the bake.
-  const landmarks = landmarkData ? buildLandmarks({ data: landmarkData, heightAt, wx, wy, M, LIFT, scene, wallTint, cartoon }) : { meshes: [], stats: { sites: 0 } };
+  const landmarks = landmarkData ? buildLandmarks({ data: landmarkData, heightAt, groundHeightAt, wx, wy, M, LIFT, scene, wallTint, cartoon }) : { meshes: [], stats: { sites: 0 } };
   if (landmarkData) {
     // the trees were planted before these buildings were in the data: none inside a landmark
     const occupied = landmarkClearance(landmarkData, wx, wy);
@@ -909,6 +911,7 @@ export async function createWorld3d(opts) {
     // A player's fleet is one instanced mesh per material: ~8 draw calls for all five trucks, not ~40.
     const fleet = model.parts.map(({ geometry, material }) => {
       const mesh = new THREE.InstancedMesh(geometry, material, count);
+      mesh.userData.fleetSeat = player.seat;
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.count = 0;
       mesh.frustumCulled = false;             // trucks spread over the city; five instances are cheap
@@ -1274,7 +1277,7 @@ export async function createWorld3d(opts) {
           if (truck.heading === null) truck.heading = want;
           else truck.heading += Math.atan2(Math.sin(want - truck.heading), Math.cos(want - truck.heading)) * Math.min(1, dt * 10);
         }
-        const grow = growAt(now.x, now.y);
+        const grow = museumPassage.truckGrow(growAt(now.x, now.y), now.x, now.y);
         const heading = truck.heading ?? 0, reach = 144 * TRUCK_SCALE * grow * .45, hx = Math.cos(heading) * reach, hz = -Math.sin(heading) * reach;
         const front = roadY(now.x + hx, now.y + hz), back = roadY(now.x - hx, now.y - hz);
         truck.obj.position.set(now.x, (front + back) / 2 + Math.abs(Math.sin(time * 9 + t * 2 + player.seat)) * .6 * grow, now.y);
@@ -1408,5 +1411,7 @@ export async function createWorld3d(opts) {
     buildingStats, roadStats, homeStats: { homes: homes.length, drawCalls: homeMeshes.length },
     landmarkStats: { ...landmarks.stats, drawCalls: landmarks.meshes.length },
     treeCounts: { parks: parkTreeCount, forest: forestTreeCount },
-    camera, controls, scene, renderer, flowAt, streaks: STREAKS, bridges, get picks() { return picks; } };
+    camera, controls, scene, renderer, flowAt, streaks: STREAKS, bridges,
+    surfaceAt: (x, z) => ({ road: roadY(x, z), ground: groundHeightAt(x, z) }),
+    get picks() { return picks; } };
 }

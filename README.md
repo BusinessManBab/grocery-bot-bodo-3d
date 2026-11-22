@@ -59,6 +59,22 @@ Three of Bodø's trademarks are modelled by hand in `src/landmarks.js` on their 
   concert hall's flytower rising from its middle.
 - **Norsk Luftfartsmuseum** (1994): the giant two-bladed propeller seen from the air, grey, with
   the dark blue glazed entrance hall as its hub; the blades' roofs fall towards the tips.
+  Olav V gate dips about 3 m on smooth approaches beneath an enclosed gallery joining the
+  museum's wings. The gallery has a solid underside and supports outside the carriageway.
+  Terrain, worker-built roads, truck pitch and trails share the same lowered surface
+  (`src/museum-underpass.js`, `src/world-build.js`); the replay routes and game rules are unchanged.
+  The dimensions are a visual reconstruction, not surveyed engineering measurements.
+
+Underpass regression checks:
+
+```sh
+node tools/check_museum_underpass.mjs
+# GPU machine only, with this folder served on port 8138:
+PLAYWRIGHT_MODULE=/path/to/playwright node tools/museum_underpass_probe.cjs
+```
+
+The browser probe temporarily routes a replay truck through the passage in memory and checks
+the actual truck mesh against the gallery underside. It does not rewrite the recorded match.
 
 All of it is ~6 draw calls and a few thousand triangles, merged into the shared material buckets.
 
